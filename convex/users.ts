@@ -1,84 +1,61 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import { ConvexError } from "convex/values";
 
-// Helper function to generate a unique ID
-function generateUid(): string {
-  return Math.random().toString(36).substring(2, 15) + 
-         Math.random().toString(36).substring(2, 15);
-}
-
-// Query to get all users
-export const getAllUsers = query({
+export const store = mutation({
+  args: {},
   handler: async (ctx) => {
-    return await ctx.db.query("users").collect();
-  },
-});
-
-// Query to get user by uid
-export const getUserByUid = query({
-  args: { uid: v.string() },
-  handler: async (ctx, args) => {
-    return await ctx.db
-      .query("users")
-      .filter((q) => q.eq(q.field("uid"), args.uid))
-      .first();
-  },
-});
-
-// Mutation to clean up invalid data
-export const cleanupInvalidUsers = mutation({
-  handler: async (ctx) => {
-    const users = await ctx.db.query("users").collect();
-    for (const user of users) {
-      if (!user.clerkId || !user.name || !user.createdAt || !user.uid) {
-        await ctx.db.delete(user._id);
-      }
-    }
-  },
-});
-
-export const createOrUpdateUser = mutation({
-  args: {
-    clerkId: v.string(),
-    name: v.string(),
-    email: v.string(),
-  },
-  handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
-      throw new ConvexError("Not authenticated");
+      throw new Error("Called storeUser without authentication present");
     }
 
-    // Verify that the authenticated user matches the requested clerkId
-    if (identity.subject !== args.clerkId) {
-      throw new ConvexError("Unauthorized");
-    }
+    // Get the current timestamp
+    const now = Date.now();
 
-    // Check if user already exists by clerkId
-    const existingUser = await ctx.db
+    // Check if we've already stored this user before
+    const user = await ctx.db
       .query("users")
-      .filter((q) => q.eq(q.field("clerkId"), args.clerkId))
-      .first();
+      .withIndex("by_user_id", (q) => q.eq("user_id", identity.subject))
+      .unique();
 
-    if (existingUser) {
-      // Update existing user
-      return await ctx.db.patch(existingUser._id, {
-        name: args.name,
-        email: args.email,
+    if (user !== null) {
+      // If we've seen this identity before, update the user info
+      await ctx.db.patch(user._id, {
+        name: identity.name ?? user.name,
+        email: identity.email ?? user.email,
+        last_logged_in: now,
       });
+      return user._id;
     }
 
-    // Generate a unique uid for new user
-    const uid = generateUid();
-
-    // Create new user
+    // If it's a new user, create a new user document
     return await ctx.db.insert("users", {
-      uid,
-      clerkId: args.clerkId,
-      name: args.name,
-      email: args.email,
-      createdAt: Date.now(),
+      user_id: identity.subject, // Clerk's unique user ID
+      name: identity.name ?? "Anonymous",
+      email: identity.email ?? "",
+      last_logged_in: now,
     });
   },
-}); 
+});
+
+export const getUserId = query({
+  args: { userId: v.string() },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_user_id", (q) => q.eq("user_id", args.userId))
+      .unique();
+    return user?._id;
+  },
+});
+
+export const getUserByClerkId = query({
+  args: { clerkId: v.string() },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_user_id", (q) => q.eq("user_id", args.clerkId))
+      .unique();
+    return user;
+  },
+});

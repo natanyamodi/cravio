@@ -3,15 +3,16 @@
 import BgGradient from "@/components/common/bg-gradient"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import Link from "next/link"
-import { useState, useEffect, KeyboardEvent } from "react"
+import { useState, KeyboardEvent } from "react"
 import { Search, X } from "lucide-react"
 import { toast } from "sonner"
+import SearchResults from "@/components/discover/search-results"
 
 export default function DiscoverPage() {
     const [inputValue, setInputValue] = useState("")
     const [keywords, setKeywords] = useState<string[]>([])
-    const [isLocationEnabled, setIsLocationEnabled] = useState(false);
+    const [locationInput, setLocationInput] = useState("")
+    const [isSearching, setIsSearching] = useState(false);
     
     const predefinedKeywords = [
         "Pet Friendly",
@@ -20,52 +21,6 @@ export default function DiscoverPage() {
         "Beach View",
         "Cheap Eats",
     ];
-
-    const requestLocation = () => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                () => {
-                    setIsLocationEnabled(true);
-                },
-                () => {
-                    setIsLocationEnabled(false);
-                    toast.error('Location access denied', {
-                        description: 'Please enable location access to find restaurants near you.',
-                    });
-                },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 5000,
-                    maximumAge: 0
-                }
-            );
-        } else {
-            toast.error('Geolocation not supported', {
-                description: 'Your browser does not support geolocation.',
-            });
-        }
-    };
-
-    useEffect(() => {
-        // Check if location permission is already granted
-        if (navigator.permissions && navigator.permissions.query) {
-            navigator.permissions.query({ name: 'geolocation' }).then((result) => {
-                if (result.state === 'granted') {
-                    requestLocation();
-                } else if (result.state === 'prompt') {
-                    requestLocation();
-                } else if (result.state === 'denied') {
-                    setIsLocationEnabled(false);
-                    toast.error('Location access denied', {
-                        description: 'Please enable location access in your browser settings.',
-                    });
-                }
-            });
-        } else {
-            // Fallback for browsers that don't support permissions API
-            requestLocation();
-        }
-    }, []);
 
     const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter' && inputValue.trim()) {
@@ -88,45 +43,29 @@ export default function DiscoverPage() {
     }
 
     const handleNomzySearch = () => {
-        if (!isLocationEnabled) {
-          toast.error('Location required', {
-            description: 'Please enable location access to search for restaurants.',
-          });
-          return;
+        if (!locationInput.trim()) {
+            toast.error('Location required', {
+                description: 'Please enter a location to search for restaurants.',
+            });
+            return;
         }
     
         if (keywords.length === 0) {
-          toast.error('Missing information', {
-            description: 'Please add some keywords.',
-          });
-          return;
+            toast.error('Missing information', {
+                description: 'Please add some keywords.',
+            });
+            return;
         }
 
-        console.log("words", keywords)
-    
+        setIsSearching(true);
         toast('Searching for perfect spots...', {
-          description: 'Our AI is analyzing your preferences and finding the best matches.',
+            description: 'Our AI is analyzing your preferences and finding the best matches.',
         });
-    
-        // Simulate search process with multiple toasts
-        setTimeout(() => {
-          toast('Gathering restaurant data...', {
-            description: 'Fetching real-time information from multiple sources.',
-          });
-        }, 1500);
-    
-        setTimeout(() => {
-          toast('AI analysis in progress...', {
-            description: 'Ranking restaurants based on your preferences.',
-          });
-        }, 3000);
-    
-        setTimeout(() => {
-          toast('Almost ready!', {
-            description: 'Preparing your personalized recommendations.',
-          });
-        }, 4500);
-      };
+    };
+
+    const handleSearchComplete = () => {
+        setIsSearching(false);
+    };
     
     return (
         <>
@@ -144,68 +83,86 @@ export default function DiscoverPage() {
                     </h2>
                 </div>
 
-                <div className="flex flex-row justify-between z-1 items-center gap-5 p-4 mt-8 rounded-lg bg-white border border-[1px] border-orange-300/70 shadow-xl">
+                <div className="flex flex-row justify-between z-1 items-center gap-2 sm:gap-3 md:gap-4 p-2 sm:p-3 md:p-4 mt-8 rounded-lg bg-white border border-[1px] border-orange-300/70 shadow-xl w-[90%] sm:w-[85%] md:w-[80%] lg:w-[70%] max-w-4xl">
                     <Input 
                         type="text"
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
                         onKeyPress={handleKeyPress}
                         placeholder="Type your craving and press Enter..."
-                        className="w-5xl sm:w-md lg:w-6xl border-none text-base
-                        sm:text-lg lg:text-xl py-5 sm:py-6 lg:py-7 placeholder-gray-300"/>
+                        className="w-full border-none text-sm sm:text-base md:text-lg lg:text-xl 
+                        py-3 sm:py-4 md:py-5 lg:py-6 
+                        px-2 sm:px-3 md:px-4 lg:px-5
+                        placeholder-gray-300"/>
 
-                    <Button variant={'link'} 
-                    onClick={() => {
-                        if (!isLocationEnabled) {
-                            requestLocation();
-                            return;
-                        }
-                        handleNomzySearch();
-                    }}
-                    className="text-white text-base
-                    sm:text-lg lg:text-xl rounded-full px-8 sm:px-10 lg:px-12 
-                    py-5 sm:py-
-6 lg:py-7 bg-linear-to-br from-[#ef512c] to-pink-500 hover:from-pink-500 hover:to-[#ef512c] hover:no-underline font-bold shadow-lg hover:scale-105 transition-all duration-300">
-                        <Link href="" className="flex gap-2 items-center">
-                            <Search/>
-                            <span>Nomzy</span>
-                        </Link>
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <div className="relative">
+                            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#ef512c] to-pink-500 p-[1px]">
+                                <div className="h-full w-full rounded-full bg-white"></div>
+                            </div>
+                            <Input
+                                type="text"
+                                value={locationInput}
+                                onChange={(e) => setLocationInput(e.target.value)}
+                                placeholder="Enter location..."
+                                className="relative w-[150px] sm:w-[180px] md:w-[200px] border-none text-sm sm:text-base
+                                py-3 sm:py-4 md:py-5 lg:py-6 
+                                px-2 sm:px-3 md:px-4 lg:px-5
+                                placeholder-gray-300 bg-transparent rounded-full
+                                focus-visible:ring-0 focus-visible:ring-offset-0"
+                            />
+                        </div>
+                        <Button variant={'link'} 
+                        onClick={handleNomzySearch}
+                        className="text-white text-sm sm:text-base md:text-lg lg:text-xl 
+                        rounded-full 
+                        px-4 sm:px-6 md:px-8 lg:px-10 
+                        py-3 sm:py-4 md:py-5 lg:py-6 
+                        bg-gradient-to-r from-[#ef512c] to-pink-500 
+                        hover:from-pink-500 hover:to-[#ef512c] 
+                        hover:no-underline font-bold shadow-lg 
+                        hover:scale-105 transition-all duration-300
+                        whitespace-nowrap">
+                            <div className="flex gap-1 sm:gap-2 items-center">
+                                <Search className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6"/>
+                                <span>Nomzy</span>
+                            </div>
+                        </Button>
+                    </div>
                 </div>
 
                 {/* Selected Keywords Chips */}
                 {keywords.length > 0 && (
-                    <div className="flex flex-wrap items-center p-4 gap-2 w-5xl sm:w-md lg:w-6xl rounded-lg border-[5px] border-dashed border-purple-300/30">
+                    <div className="flex flex-wrap items-center p-2 sm:p-3 md:p-4 gap-2 w-[90%] sm:w-[85%] md:w-[80%] lg:w-[70%] max-w-4xl rounded-lg border-[5px] border-dashed border-purple-300/30">
                         {keywords.map((keyword, index) => (
                             <div
                                 key={index}
-                                className="group flex items-center gap-1 px-3 py-1 text-sm font-medium rounded-full bg-orange-100 hover:bg-orange-200 text-orange-600
-                                sm:px-4 sm:py-1.5 sm:text-base
-                                md:px-5 md:py-2 md:text-base
-                                lg:px-6 lg:py-2 lg:text-lg cursor-pointer"
+                                className="group flex items-center gap-1 px-2 py-1 text-xs sm:text-sm md:text-base lg:text-lg font-medium rounded-full bg-orange-100 hover:bg-orange-200 text-orange-600
+                                sm:px-3 sm:py-1.5
+                                md:px-4 md:py-2
+                                lg:px-5 lg:py-2 cursor-pointer"
                             >
                                 <span>{keyword}</span>
                                 <X
                                 onClick={() => removeKeyword(keyword)}
-                                className="w-4 h-4 text-orange-600 transition-transform duration-200 transform group-hover:scale-125"
+                                className="w-3 h-3 sm:w-4 sm:h-4 text-orange-600 transition-transform duration-200 transform group-hover:scale-125"
                                 />
-
                             </div>
                         ))}
                     </div>
                 )}
 
-                <div className="flex flex-col mt-6 gap-6">
-                    <p className="text-gray-700">Or Choose From</p>
-                    <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-col mt-4 sm:mt-5 md:mt-6 gap-3 sm:gap-4 md:gap-5 w-[90%] sm:w-[85%] md:w-[80%] lg:w-[70%] max-w-4xl">
+                    <p className="text-sm sm:text-base md:text-lg text-gray-700 text-center">Or Choose From</p>
+                    <div className="flex flex-wrap items-center justify-center gap-2">
                         {predefinedKeywords.map((keyword, index) => (
                             <button
                                 key={index}
                                 onClick={() => handleKeywordClick(keyword)}
-                                className="px-3 py-1 text-sm font-medium rounded-full cursor-pointer bg-orange-100 hover:bg-orange-200 text-orange-600
-                                sm:px-4 sm:py-1.5 sm:text-base
-                                md:px-5 md:py-2 md:text-base
-                                lg:px-6 lg:py-2 lg:text-lg"
+                                className="px-2 py-1 text-xs sm:text-sm md:text-base lg:text-lg font-medium rounded-full cursor-pointer bg-orange-100 hover:bg-orange-200 text-orange-600
+                                sm:px-3 sm:py-1.5
+                                md:px-4 md:py-2
+                                lg:px-5 lg:py-2"
                             >
                                 {keyword}
                             </button>
@@ -213,7 +170,14 @@ export default function DiscoverPage() {
                     </div>
                 </div>
 
-
+                {/* Search Results */}
+                {isSearching && (
+                    <SearchResults 
+                        keywords={keywords}
+                        location={locationInput.trim()}
+                        onSearchComplete={handleSearchComplete}
+                    />
+                )}
             </section>
         </>
     )

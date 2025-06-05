@@ -4,7 +4,8 @@ import "./globals.css";
 import Header from "@/components/common/header";
 import { ClerkProvider } from "@clerk/nextjs";
 import {Toaster} from '@/components/ui/sonner'
-import { Providers } from './providers';
+import ConvexClientProvider from '@/components/ConvexClientProvider'
+import UserSync from '@/components/auth/UserSync'
 
 const fontSans = FontSans({
   variable: "--font-sans",
@@ -26,7 +27,8 @@ export default function RootLayout({
     <html lang="en">
       <body className={`font-sans ${fontSans.variable} antialiased`}>
         <ClerkProvider>
-          <Providers>
+          <ConvexClientProvider>
+            <UserSync />
             <div className="relative flex flex-col min-h-screen">
               <Header />
               <main className="flex-1">
@@ -34,7 +36,7 @@ export default function RootLayout({
               </main>
             </div>
             <Toaster position="top-right" />
-          </Providers>
+          </ConvexClientProvider>
         </ClerkProvider>
       </body>
     </html>
