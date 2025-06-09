@@ -3,8 +3,8 @@
 import BgGradient from "@/components/common/bg-gradient"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { useState, KeyboardEvent } from "react"
-import { Search, X } from "lucide-react"
+import { useState, KeyboardEvent, useRef } from "react"
+import { Search, X, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import SearchResults from "@/components/discover/search-results"
 
@@ -13,6 +13,8 @@ export default function DiscoverPage() {
     const [keywords, setKeywords] = useState<string[]>([])
     const [locationInput, setLocationInput] = useState("")
     const [isSearching, setIsSearching] = useState(false);
+    const [isGenerating, setIsGenerating] = useState(false);
+    const loadingToastRef = useRef<string | number | null>(null);
     
     const predefinedKeywords = [
         "Pet Friendly",
@@ -58,13 +60,45 @@ export default function DiscoverPage() {
         }
 
         setIsSearching(true);
-        toast('Searching for perfect spots...', {
-            description: 'Our AI is analyzing your preferences and finding the best matches.',
-        });
+            // Show loading toast while collecting and processing
+        const loadingToast = toast.loading("Scouting secret foodie spots just for you... 🔎🍜");
+        
+        // Store toast ID in ref
+        loadingToastRef.current = loadingToast;
+    };
+
+    const handleSearchStage = (stage: 'searching' | 'generating' | 'success' | 'error') => {
+        switch (stage) {
+            case 'searching':
+                setIsSearching(false);
+                setIsGenerating(true);
+                break;
+            case 'generating':
+                // Keep the loading toast
+                break;
+            case 'success':
+                // Dismiss loading toast and show success
+                if (loadingToastRef.current) {
+                    toast.dismiss(loadingToastRef.current);
+                }
+                toast.success("Handpicked spots just for your cravings 💌🍲");
+                setIsGenerating(false);
+                break;
+            case 'error':
+                // Dismiss loading toast and show error
+                if (loadingToastRef.current) {
+                    toast.dismiss(loadingToastRef.current);
+                }
+                toast.error("The web was hangry. Try again in a bit 😤🛑");
+                setIsSearching(false);
+                setIsGenerating(false);
+                break;
+        }
     };
 
     const handleSearchComplete = () => {
         setIsSearching(false);
+        setIsGenerating(false);
     };
     
     return (
@@ -112,19 +146,26 @@ export default function DiscoverPage() {
                                 focus-visible:ring-0 focus-visible:ring-offset-0"
                             />
                         </div>
-                        <Button variant={'link'} 
-                        onClick={handleNomzySearch}
-                        className="text-white text-sm sm:text-base md:text-lg lg:text-xl 
-                        rounded-full 
-                        px-4 sm:px-6 md:px-8 lg:px-10 
-                        py-3 sm:py-4 md:py-5 lg:py-6 
-                        bg-gradient-to-r from-[#ef512c] to-pink-500 
-                        hover:from-pink-500 hover:to-[#ef512c] 
-                        hover:no-underline font-bold shadow-lg 
-                        hover:scale-105 transition-all duration-300
-                        whitespace-nowrap">
+                        <Button 
+                            variant={'link'} 
+                            onClick={handleNomzySearch}
+                            disabled={isSearching || isGenerating}
+                            className={`text-white text-sm sm:text-base md:text-lg lg:text-xl 
+                            rounded-full 
+                            px-4 sm:px-6 md:px-8 lg:px-10 
+                            py-3 sm:py-4 md:py-5 lg:py-6 
+                            bg-gradient-to-r from-[#ef512c] to-pink-500 
+                            hover:from-pink-500 hover:to-[#ef512c] 
+                            hover:no-underline font-bold shadow-lg 
+                            hover:scale-105 transition-all duration-300
+                            whitespace-nowrap
+                            ${(isSearching || isGenerating) ? 'opacity-70 cursor-not-allowed' : ''}`}>
                             <div className="flex gap-1 sm:gap-2 items-center">
-                                <Search className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6"/>
+                                {(isSearching || isGenerating) ? (
+                                    <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 animate-spin" />
+                                ) : (
+                                    <Search className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
+                                )}
                                 <span>Nomzy</span>
                             </div>
                         </Button>
@@ -171,11 +212,12 @@ export default function DiscoverPage() {
                 </div>
 
                 {/* Search Results */}
-                {isSearching && (
+                {(isSearching || isGenerating) && (
                     <SearchResults 
                         keywords={keywords}
                         location={locationInput.trim()}
                         onSearchComplete={handleSearchComplete}
+                        onSearchStage={handleSearchStage}
                     />
                 )}
             </section>

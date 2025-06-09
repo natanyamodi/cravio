@@ -1,116 +1,127 @@
 'use client';
 
-import { useQuery, useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
 import { useUser } from "@clerk/nextjs";
-import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { useRef, useEffect } from "react";
 
-interface TavilySearchResult {
-    results: Array<{
-        title: string;
-        url: string;
-        content: string;
-        score: number;
-    }>;
-    query: string;
+interface SearchResult {
+    success: boolean;
+    data?: string;
+    error?: string;
+}
+
+interface TavilyResult {
+    title: string;
+    url: string;
+    content: string;
+    score: number;
+    published_date?: string;
+    author?: string;
 }
 
 interface SearchResultsProps {
     keywords: string[];
     location: string;
-    onSearchComplete?: () => void;
+    onSearchComplete: (results: SearchResult) => void;
+    onSearchStage?: (stage: 'searching' | 'generating' | 'success' | 'error', error?: string) => void;
 }
 
-export default function SearchResults({ keywords, location, onSearchComplete }: SearchResultsProps) {
+export default function SearchResults({ keywords, location, onSearchComplete, onSearchStage }: SearchResultsProps) {
     const { user: clerkUser } = useUser();
     const user = useQuery(api.users.getUserByClerkId, 
         clerkUser ? { clerkId: clerkUser.id } : "skip"
     );
     const storeSearchQuery = useMutation(api.search.storeSearchQuery);
     const isSearching = useRef(false);
-    const [searchResults, setSearchResults] = useState<TavilySearchResult | null>(null);
+    const isMounted = useRef(true);
 
     useEffect(() => {
-        let isMounted = true;
-
-        const performSearch = async () => {
-            if (isSearching.current || !user?._id || !location) return;
-
-            try {
-                isSearching.current = true;
-                
-                // 1. Store the search query in Convex
-                await storeSearchQuery({
-                    userId: user._id,
-                    keywords,
-                    location: location,
-                });
-
-                // 2. Perform Tavily search through our API route
-                const searchQuery = `Find ${keywords.join(' ')} restaurants in ${location}`;
-                const response = await fetch('/api/search', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ query: searchQuery }),
-                });
-
-                if (!response.ok) {
-                    throw new Error('Search request failed');
-                }
-
-                const tavilyResults = await response.json();
-                console.log('Tavily Search Results:', tavilyResults);
-
-                if (isMounted) {
-                    setSearchResults(tavilyResults);
-                    onSearchComplete?.();
-                }
-            } catch (error) {
-                console.error('Search failed:', error);
-                if (isMounted) {
-                    toast.error('Search failed', {
-                        description: 'Please try again later.',
-                    });
-                }
-            } finally {
-                if (isMounted) {
-                    isSearching.current = false;
-                }
-            }
-        };
-
-        performSearch();
-
         return () => {
-            isMounted = false;
+            isMounted.current = false;
         };
-    }, [user?._id, keywords, location, onSearchComplete]);
+    }, []);
 
-    return (
-        <div className="w-full max-w-4xl mt-8">
-            {searchResults && (
-                <div className="p-4 bg-white rounded-lg shadow-lg">
-                    <h3 className="text-xl font-semibold mb-4">Search Results</h3>
-                    <div className="space-y-4">
-                        {searchResults.results.map((result, index) => (
-                            <div key={index} className="p-2 hover:bg-gray-50 rounded">
-                                <a 
-                                    href={result.url} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="text-blue-600 hover:underline"
-                                >
-                                    {result.title}
-                                </a>
-                                <p className="text-sm text-gray-600 mt-1">{result.content}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
-        </div>
-    );
+    useEffect(() => {
+        if (!isSearching.current && user?._id) {
+            performSearch();
+        }
+    }, [user?._id, keywords, location]);
+
+    const performSearch = async () => {
+        if (isSearching.current || !user?._id) return;
+        
+        try {
+            isSearching.current = true;
+            
+            // Generate search queries
+            const response = await fetch('/api/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    keywords,
+                    location,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Search request failed');
+            }
+
+            const results = await response.json();
+            
+            // Log the entire search process
+            console.group('🔍 Search Process Log');
+            console.log('📍 Location:', location);
+            console.log('🔑 Keywords:', keywords);
+            
+            if (results.queries) {
+                console.group('📝 Generated Queries');
+                results.queries.forEach((query: string, index: number) => {
+                    console.log(`Query ${index + 1}:`, query);
+                });
+                console.groupEnd();
+            }
+
+            if (results.tavilyResults) {
+                console.group('🌐 Tavily Search Results');
+                results.tavilyResults.forEach((result: TavilyResult, index: number) => {
+                    console.log(`Result Set ${index + 1}:`, result);
+                });
+                console.groupEnd();
+            }
+
+            if (results.success) {
+                console.group('🤖 Gemini Final Response');
+                console.log('Formatted Recommendations:', results.data);
+                console.groupEnd();
+
+                // Store results
+                await storeSearchQuery({
+                    keywords,
+                    location,
+                    searchResults: results.data,
+                    userId: user._id
+                });
+
+                onSearchStage?.('success');
+                onSearchComplete(results.data);
+            } else {
+                throw new Error(results.error || 'Search failed');
+            }
+            
+            console.groupEnd();
+        } catch (error) {
+            console.error('❌ Search Error:', error);
+            onSearchStage?.('error');
+        } finally {
+            if (isMounted.current) {
+                isSearching.current = false;
+            }
+        }
+    };
+
+    return null; 
 } 

@@ -1,23 +1,30 @@
 import { NextResponse } from 'next/server';
-import getSearchResults from '@/lib/tavily';
+import { getGeminiRecommendations } from '@/lib/gemini';
 
 export async function POST(request: Request) {
     try {
-        const { query } = await request.json();
+        const { keywords, location } = await request.json();
         
-        if (!query) {
+        if (!keywords || !location) {
             return NextResponse.json(
-                { error: 'Query is required' },
+                { 
+                    success: false,
+                    error: 'Keywords and location are required' 
+                },
                 { status: 400 }
             );
         }
 
-        const results = await getSearchResults(query);
+        const results = await getGeminiRecommendations(keywords, location);
         return NextResponse.json(results);
+
     } catch (error) {
         console.error('Search API error:', error);
         return NextResponse.json(
-            { error: 'Failed to perform search' },
+            { 
+                success: false,
+                error: 'Failed to perform search'
+            },
             { status: 500 }
         );
     }
