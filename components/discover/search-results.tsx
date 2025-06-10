@@ -4,11 +4,13 @@ import { useUser } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 interface SearchResult {
     success: boolean;
     data?: string;
     error?: string;
+    queryId?: string;
 }
 
 interface TavilyResult {
@@ -28,6 +30,7 @@ interface SearchResultsProps {
 }
 
 export default function SearchResults({ keywords, location, onSearchComplete, onSearchStage }: SearchResultsProps) {
+    const router = useRouter();
     const { user: clerkUser } = useUser();
     const user = useQuery(api.users.getUserByClerkId, 
         clerkUser ? { clerkId: clerkUser.id } : "skip"
@@ -98,8 +101,8 @@ export default function SearchResults({ keywords, location, onSearchComplete, on
                 console.log('Formatted Recommendations:', results.data);
                 console.groupEnd();
 
-                // Store results
-                await storeSearchQuery({
+                // Store results and get the query ID
+                const queryId = await storeSearchQuery({
                     keywords,
                     location,
                     searchResults: results.data,
@@ -107,7 +110,19 @@ export default function SearchResults({ keywords, location, onSearchComplete, on
                 });
 
                 onSearchStage?.('success');
-                onSearchComplete(results.data);
+                
+                // Create the result object
+                const searchResult = {
+                    success: true,
+                    data: results.data,
+                    queryId
+                };
+
+                // Call the completion handler
+                onSearchComplete(searchResult);
+
+                // Navigate to the search results page
+                router.push(`/search/${queryId}`);
             } else {
                 throw new Error(results.error || 'Search failed');
             }

@@ -99,6 +99,7 @@ export default function DiscoverPage() {
     const handleSearchComplete = () => {
         setIsSearching(false);
         setIsGenerating(false);
+        // Redirection is now handled in SearchResults component
     };
     
     return (
