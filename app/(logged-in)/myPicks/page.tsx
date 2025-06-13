@@ -6,7 +6,7 @@ import { api } from "@/convex/_generated/api";
 import SearchQueryCard from "@/components/my-picks/search-query-card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Plus } from "lucide-react";
 
 export default function MyPicksPage() {
   const { user: clerkUser } = useUser();
@@ -49,7 +49,16 @@ export default function MyPicksPage() {
   return (
     <div className="p-4 sm:p-6 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-2xl sm:text-3xl font-semibold text-gray-800 mb-6 sm:mb-8">My Picks</h1>
+        <div className="flex justify-between items-center mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-semibold text-gray-800">My Picks</h1>
+          <Button className="bg-gradient-to-r from-[#ef512c] to-pink-500 text-white rounded-lg px-4 py-2 hover:from-pink-500 hover:to-[#ef512c] transition-all duration-300">
+            <Link href="/discover" className="flex items-center gap-1">
+              <Plus className="w-4 h-4" />
+              Find New
+            </Link>
+          </Button>
+          
+        </div>
         
         {/* Responsive grid layout */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">

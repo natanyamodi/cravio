@@ -9,6 +9,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import RestaurantCarousel from "@/components/search/restaurant-carousel";
+import React from 'react';
 
 interface Restaurant {
   name: string;
@@ -17,10 +18,10 @@ interface Restaurant {
   why: string;
 }
 
-export default function SearchResultsPage({ params }: { params: { id: string } }) {
+export default function SearchResultsPage({ params }: { params: Promise<{ id: string }> }) {
   const { user: clerkUser, isLoaded: isClerkLoaded } = useUser();
   const router = useRouter();
-  const queryId = params.id as string;
+  const { id: queryId } = React.use(params);
 
   const searchQuery = useQuery(api.search.getSearchQueryById, { queryId });
   const user = useQuery(api.users.getUserByClerkId,
