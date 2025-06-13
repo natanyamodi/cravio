@@ -1,9 +1,15 @@
+'use client'
+
 import { ArrowRight } from "lucide-react";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import BgGradient from "../common/bg-gradient";
+import { useUser } from "@clerk/nextjs";
 
 export default function HeroSection() {
+    const { isSignedIn } = useUser();
+    const destination = isSignedIn ? "/discover" : "/sign-in";
+
     return (
         <section className="relative mx-auto flex flex-col z-0 items-center justify-center py-16 sm:py-20 lg:pb-28
         transition-all animate-in lg:px-12 max-w-7xl lg:mt-20">
@@ -19,7 +25,7 @@ export default function HeroSection() {
             <Button variant={'link'} className="text-white mt-6 text-base
                 sm:text-lg lg:text-xl rounded-full px-8 sm:px-10 lg:px-12 
                 py-6 sm:py-7 lg:py-8 lg:mt-16 bg-linear-to-br from-[#ef512c] to-pink-500 hover:from-pink-500 hover:to-[#ef512c] hover:no-underline font-bold shadow-lg hover:scale-105 transition-all duration-300">
-                    <Link href="#dashboard" className="flex gap-2 items-center">
+                    <Link href={destination} className="flex gap-2 items-center">
                         <span>Try Cravio!</span>
                         <ArrowRight className="animate-pulse" />
                     </Link>

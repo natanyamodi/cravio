@@ -8,47 +8,40 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import RestaurantCard from "./restaurant-card";
-import { SearchResult } from "@/lib/types";
+import { RestaurantCardProps } from "./restaurant-card";
 
 interface RestaurantCarouselProps {
-  results: SearchResult[];
+  results: RestaurantCardProps[];
 }
 
 export default function RestaurantCarousel({ results }: RestaurantCarouselProps) {
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-8">
-      <h2 className="text-3xl font-bold text-center mb-8 bg-gradient-to-r from-[#ef512c] to-pink-500 bg-clip-text text-transparent">
+    <div className="w-full max-w-3xl h-full pb-10 mx-auto px-4 pt-4 border border-none rounded-2xl shadow-lg relative">
+      <h2 className="text-3xl font-bold text-center mb-4 text-gray-800">
         Your Finds
       </h2>
       <Carousel
         opts={{
           align: "start",
-          loop: true,
         }}
         className="w-full"
       >
         <CarouselContent className="-ml-4">
           {results.map((result, index) => (
-            <CarouselItem key={index} className="pl-4 md:basis-1/2 lg:basis-1/3">
-              <div className="p-1">
+            <CarouselItem key={index} className="pl-4 basis-full">
+              <div className="p-1 flex justify-center">
                 <RestaurantCard
                   name={result.name}
-                  contact={result.contact}
-                  address={result.address}
-                  addressLink={result.address_link}
-                  menuLinks={{
-                    swiggy: result.swiggy_link,
-                    zomato: result.zomato_link,
-                  }}
-                  reviews={result.reviews}
+                  location={result.location}
+                  menuLinks={result.menuLinks}
                   why={result.why}
                 />
               </div>
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className="hidden md:flex bg-gradient-to-r from-[#ef512c] to-pink-500 text-white border-none hover:from-pink-500 hover:to-[#ef512c]" />
-        <CarouselNext className="hidden md:flex bg-gradient-to-r from-[#ef512c] to-pink-500 text-white border-none hover:from-pink-500 hover:to-[#ef512c]" />
+        <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2 hidden md:flex bg-linear-to-br from-[#ef512c] to-pink-500 text-white border-none hover:from-pink-500 hover:to-[#ef512c] hover:text-white hover:scale-105" />
+        <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2 hidden md:flex bg-linear-to-br from-[#ef512c] to-pink-500 text-white border-none hover:from-pink-500 hover:to-[#ef512c] hover:text-white hover:scale-105" />
       </Carousel>
     </div>
   );

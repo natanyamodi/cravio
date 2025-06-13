@@ -98,7 +98,7 @@ export default function SearchResults({ keywords, location, onSearchComplete, on
 
             if (results.success) {
                 console.group('🤖 Gemini Final Response');
-                console.log('Formatted Recommendations:', results.data);
+                console.log(results.data);
                 console.groupEnd();
 
                 // Store results and get the query ID

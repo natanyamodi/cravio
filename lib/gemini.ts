@@ -58,8 +58,8 @@ async function generateSearchQueries(keywords: string[], location: string) {
 
         // Parse the JSON array from the response
         const queries = JSON.parse(jsonStr);
-        if (!Array.isArray(queries) || queries.length !== 3) {
-            throw new Error(`Invalid query format generated. Expected 3 queries, got ${queries.length}`);
+        if (!Array.isArray(queries) || queries.length !== 5) {
+            throw new Error(`Invalid query format generated. Expected 5 queries, got ${queries.length}`);
         }
 
         // Validate each query is a string
@@ -91,10 +91,10 @@ async function parseSearchResults(searchResults: SearchResult[], keywords: strin
         
         // Pass the raw search results as JSON
         const searchData = JSON.stringify(searchResults, null, 2);
-        const userPrompt = `I have found these search results about restaurants in ${location}:\n\n${searchData}\n\n` +
+        const userPrompt = `Here are the search results about restaurants in ${location}:\n\n${searchData}\n\n` +
             `Based on these results, please generate recommendations that match these preferences: ${keywords.join(', ')}.`;
 
-        const fullPrompt = `${SYSTEM_PROMPT}\n\nUser Input:\n${userPrompt}`;
+        const fullPrompt = `${SYSTEM_PROMPT}\n\n${userPrompt}`;
 
         const result = await model.generateContent({
             contents: [{ role: "user", parts: [{ text: fullPrompt }] }],
