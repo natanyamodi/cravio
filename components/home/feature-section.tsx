@@ -5,17 +5,17 @@ export default function FeatureSection() {
           {
             icon: <Zap className="w-8 h-8 text-purple-400" />,
             title: "Natural Input, No Filters",
-            description: "Just type what you're craving. No forms. No dropdowns. Just vibes. Our AI gets it."
+            description: "Type a craving, hit space, comma, or enter and keywords get created instantly."
           },
           {
             icon: <Brain className="w-8 h-8 text-purple-400" />,
             title: "Real-Time AI Search",
-            description: "Our AI doesn't nap. It scans Google, Zomato, and Swiggy in real time to find restaurants with matching menus, reviews, and contact details."
+            description: "Scans Google, Zomato, and Swiggy live for matching menus, reviews, and info."
           },
           {
             icon: <Star className="w-8 h-8 text-purple-400" />,
             title: "Smart Recommendations",
-            description: "From the chaos of the web, our AI serves you the top 3 picks — complete with honest reasons why they are perfect for your mood, taste, and wallet."
+            description: "Finds the top 3 spots with honest reasons tailored to mood, taste, and wallet."
           }
     ]
 
