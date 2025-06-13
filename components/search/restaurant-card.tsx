@@ -18,13 +18,13 @@ export default function RestaurantCard({
   why
 }: RestaurantCardProps) {
   return (
-    <Card className="mt-0 w-[500px] h-[390px] border-dashed border-pink-100 border-5 flex flex-col items-center justify-center shadow-none">
+    <Card className="mt-0 w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-none md:w-[500px] h-auto md:h-[390px] border-dashed border-pink-100 border-5 flex flex-col items-center justify-center shadow-none">
       <CardHeader className="pb-2 w-full pt-0">
         <CardTitle className="text-2xl font-bold bg-gradient-to-r from-[#ef512c] to-pink-500 bg-clip-text text-transparent text-left">
           {name}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4 w-full">
+      <CardContent className="space-y-4 w-full px-4">
         {/* Location */}
         {location && location !== "Not available" && (
           <div className="flex items-start gap-2 text-gray-700">

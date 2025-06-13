@@ -25,7 +25,7 @@ export default function DiscoverPage() {
     ];
 
     const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter' && inputValue.trim()) {
+        if (e.key === 'Enter' || e.key === ' ' || e.key === ',' && inputValue.trim()) {
             e.preventDefault()
             if (!keywords.includes(inputValue.trim())) {
                 setKeywords([...keywords, inputValue.trim()])
@@ -124,8 +124,8 @@ export default function DiscoverPage() {
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
                         onKeyPress={handleKeyPress}
-                        placeholder="Type your craving and press Enter..."
-                        className="w-full border-none text-sm sm:text-base md:text-lg lg:text-xl 
+                        placeholder="Type a craving & hit space to add"
+                        className="w-full border-none text-sm sm:text-sm md:text-lg lg:text-xl 
                         py-3 sm:py-4 md:py-5 lg:py-6 
                         px-2 sm:px-3 md:px-4 lg:px-5
                         placeholder-gray-300"/>
@@ -139,8 +139,8 @@ export default function DiscoverPage() {
                                 type="text"
                                 value={locationInput}
                                 onChange={(e) => setLocationInput(e.target.value)}
-                                placeholder="Enter location..."
-                                className="relative w-[150px] sm:w-[180px] md:w-[200px] border-none text-sm sm:text-base
+                                placeholder="Enter location"
+                                className="relative w-[100px] sm:w-[100px] lg:w-[130px] xs:w-[50] border-none text-sm sm:text-base
                                 py-3 sm:py-4 md:py-5 lg:py-6 
                                 px-2 sm:px-3 md:px-4 lg:px-5
                                 placeholder-gray-300 bg-transparent rounded-full
