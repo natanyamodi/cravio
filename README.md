@@ -91,18 +91,6 @@ npm run dev
 
 The application will typically be accessible at `http://localhost:3000` (or `http://localhost:3001` if port 3000 is in use).
 
-### Building for Production
-
-To create a production-optimized build of the application:
-
-```bash
-npm run build
-```
-
-### Deploying Convex Backend
-
-Cravio relies on a Convex backend. You will need to deploy your Convex functions for the application to work correctly in production. Please refer to the official [Convex documentation](https://docs.convex.dev/) for detailed instructions on how to set up and deploy your Convex project.
-
 ## 🤝 Contributing
 
 Contributions are welcome! If you have suggestions for improvements or new features, please open an issue or submit a pull request.
