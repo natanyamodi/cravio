@@ -4,7 +4,7 @@ import BgGradient from "@/components/common/bg-gradient"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useState, KeyboardEvent, useRef } from "react"
-import { Search, X, Loader2 } from "lucide-react"
+import { Search, X, Loader2, Plus } from "lucide-react"
 import { toast } from "sonner"
 import SearchResults from "@/components/discover/search-results"
 
@@ -25,7 +25,7 @@ export default function DiscoverPage() {
     ];
 
     const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter' || e.key === ' ' || e.key === ',' && inputValue.trim()) {
+        if (e.key === 'Enter' && inputValue.trim()) {
             e.preventDefault()
             if (!keywords.includes(inputValue.trim())) {
                 setKeywords([...keywords, inputValue.trim()])
@@ -42,6 +42,13 @@ export default function DiscoverPage() {
 
     const removeKeyword = (keywordToRemove: string) => {
         setKeywords(keywords.filter(keyword => keyword !== keywordToRemove))
+    }
+
+    const handleAddKeyword = () => {
+        if (inputValue.trim() && !keywords.includes(inputValue.trim())) {
+            setKeywords([...keywords, inputValue.trim()])
+            setInputValue("")
+        }
     }
 
     const handleNomzySearch = () => {
@@ -119,16 +126,27 @@ export default function DiscoverPage() {
                 </div>
 
                 <div className="flex flex-row justify-between z-1 items-center gap-2 sm:gap-3 md:gap-4 p-2 sm:p-3 md:p-4 mt-8 rounded-lg bg-white border border-[1px] border-orange-300/70 shadow-xl w-[90%] sm:w-[85%] md:w-[80%] lg:w-[70%] max-w-4xl">
-                    <Input 
-                        type="text"
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        onKeyPress={handleKeyPress}
-                        placeholder="Type a craving & hit space to add"
-                        className="w-full border-none text-sm sm:text-sm md:text-lg lg:text-xl 
-                        py-3 sm:py-4 md:py-5 lg:py-6 
-                        px-2 sm:px-3 md:px-4 lg:px-5
-                        placeholder-gray-300"/>
+                    <div className="flex items-center w-full gap-2">
+                        <Input 
+                            type="text"
+                            value={inputValue}
+                            onChange={(e) => setInputValue(e.target.value)}
+                            onKeyPress={handleKeyPress}
+                            placeholder="Type a craving & hit enter, or plus to add"
+                            className="w-full border-none text-sm sm:text-sm md:text-lg lg:text-xl 
+                            py-3 sm:py-4 md:py-5 lg:py-6 
+                            px-2 sm:px-3 md:px-4 lg:px-5
+                            placeholder-gray-300"/>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={handleAddKeyword}
+                            className="rounded-full hover:bg-orange-100 bg-orange-50 transition-colors"
+                            disabled={!inputValue.trim()}
+                        >
+                            <Plus className="w-5 h-5 text-orange-500" />
+                        </Button>
+                    </div>
 
                     <div className="flex items-center gap-2">
                         <div className="relative">
