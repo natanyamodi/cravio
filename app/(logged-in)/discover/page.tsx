@@ -114,7 +114,7 @@ export default function DiscoverPage() {
             <section className="flex flex-col items-center justify-center gap-6 text-center mt-[5rem]">
                 <BgGradient />
                 <div className="max-w-4xl mx-auto">
-                    <h1 className="text-bold text-5xl lg:text-6xl sm:text-4xl text-gray-800">
+                    <h1 className="text-bold text-5xl lg:text-6xl sm:text-5xl text-gray-800">
                         What are you in the
                         <span className="bg-gradient-to-r from-pink-500 to-[#ef512c] bg-clip-text text-transparent"> mood </span>
                         for?
@@ -125,14 +125,14 @@ export default function DiscoverPage() {
                     </h2>
                 </div>
 
-                <div className="flex flex-row justify-between z-1 items-center gap-2 sm:gap-3 md:gap-4 p-2 sm:p-3 md:p-4 mt-8 rounded-lg bg-white border border-[1px] border-orange-300/70 shadow-xl w-[90%] sm:w-[85%] md:w-[80%] lg:w-[70%] max-w-4xl">
-                    <div className="flex items-center w-full gap-2">
+                <div className="flex flex-col gap-2 sm:gap-3 md:gap-4 p-2 sm:p-3 md:p-4 mt-8 rounded-lg bg-white border border-[1px] border-orange-300/70 shadow-xl w-[90%] sm:w-[85%] md:w-[80%] lg:w-[70%] max-w-4xl">
+                    <div className="flex items-center w-full gap-2 sm:gap-3 md:gap-4">
                         <Input 
                             type="text"
                             value={inputValue}
                             onChange={(e) => setInputValue(e.target.value)}
                             onKeyPress={handleKeyPress}
-                            placeholder="Type a craving & hit enter, or plus to add"
+                            placeholder="Type a craving and hit enter or plus to add"
                             className="w-full border-none text-sm sm:text-sm md:text-lg lg:text-xl 
                             py-3 sm:py-4 md:py-5 lg:py-6 
                             px-2 sm:px-3 md:px-4 lg:px-5
@@ -141,24 +141,24 @@ export default function DiscoverPage() {
                             variant="ghost"
                             size="icon"
                             onClick={handleAddKeyword}
-                            className="rounded-full hover:bg-orange-100 bg-orange-50 transition-colors"
+                            className="rounded-full w-11 h-11 hover:bg-orange-100 bg-orange-50 transition-colors p-2"
                             disabled={!inputValue.trim()}
                         >
-                            <Plus className="w-5 h-5 text-orange-500" />
+                            <Plus className="w-16 h-16 text-orange-500 font-bold" />
                         </Button>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center w-full gap-2 sm:gap-3 md:gap-4 justify-between">
                         <div className="relative">
-                            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#ef512c] to-pink-500 p-[1px]">
+                            <div className="absolute inset-0 rounded-full p-[1px]">
                                 <div className="h-full w-full rounded-full bg-white"></div>
                             </div>
                             <Input
                                 type="text"
                                 value={locationInput}
                                 onChange={(e) => setLocationInput(e.target.value)}
-                                placeholder="Enter location"
-                                className="relative w-[100px] sm:w-[100px] lg:w-[130px] xs:w-[50] border-none text-sm sm:text-base
+                                placeholder="enter your city"
+                                className="relative ml-1 w-[150px] sm:w-[150px] lg:w-[170px] xs:w-[110px] border border-dashed border-pink-300 text-sm sm:text-sm md:text-lg lg:text-xl 
                                 py-3 sm:py-4 md:py-5 lg:py-6 
                                 px-2 sm:px-3 md:px-4 lg:px-5
                                 placeholder-gray-300 bg-transparent rounded-full
