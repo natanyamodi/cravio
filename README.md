@@ -1,4 +1,4 @@
-# Cravio: Your AI-Powered Restaurant Recommendation Engine
+# Cravio: Your AI-Powered Restaurant Finder
 
 Cravio is an innovative web application designed to simplify your dining decisions. Leveraging the power of AI, Cravio provides personalized restaurant recommendations based on your preferences, helping you discover your next favorite spot with ease. From casual bites to fine dining, Cravio takes the guesswork out of finding the perfect place.
 
