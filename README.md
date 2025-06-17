@@ -25,8 +25,6 @@ Cravio is built with a modern and robust tech stack to ensure performance, scala
 *   **Tailwind CSS:** A utility-first CSS framework for rapid UI development.
 *   **Shadcn UI:** A collection of re-usable components built with Radix UI and Tailwind CSS.
 *   **Lucide React:** A beautiful and consistent icon library.
-*   **Next-Themes:** For managing light/dark mode theming.
-*   **Sonner:** For elegant and customizable toast notifications.
 
 ### Backend
 *   **Convex:** A full-stack development platform that provides a real-time database, serverless functions (for API endpoints and database interactions), and authentication integrations.
