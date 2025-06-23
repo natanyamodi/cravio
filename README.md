@@ -1,4 +1,4 @@
-# Cravio: Your AI-Powered Restaurant Recommendation Engine
+# Cravio: Your AI-Powered Restaurant Finder
 
 Cravio is an innovative web application designed to simplify your dining decisions. Leveraging the power of AI, Cravio provides personalized restaurant recommendations based on your preferences, helping you discover your next favorite spot with ease. From casual bites to fine dining, Cravio takes the guesswork out of finding the perfect place.
 
@@ -25,8 +25,6 @@ Cravio is built with a modern and robust tech stack to ensure performance, scala
 *   **Tailwind CSS:** A utility-first CSS framework for rapid UI development.
 *   **Shadcn UI:** A collection of re-usable components built with Radix UI and Tailwind CSS.
 *   **Lucide React:** A beautiful and consistent icon library.
-*   **Next-Themes:** For managing light/dark mode theming.
-*   **Sonner:** For elegant and customizable toast notifications.
 
 ### Backend
 *   **Convex:** A full-stack development platform that provides a real-time database, serverless functions (for API endpoints and database interactions), and authentication integrations.
